@@ -1,4 +1,4 @@
-import { isAbsolute, resolve, toFileUrl } from "@std/path";
+import { isAbsolute, resolve, toFileUrl } from "jsr:@std/path@^0.223.0";
 
 /**
  * Resolves a location to its canonical URL object.

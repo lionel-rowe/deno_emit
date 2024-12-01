@@ -38,9 +38,13 @@ const encoder = new TextEncoder();
 import { instantiate } from "./emit.generated.js";
 import { locationToUrl } from "./_utils.ts";
 import {
+CacheOptions,
   type CacheSetting,
   createCache,
-  type FetchCacher,
+  DenoDir,
+  FetchCacher,
+  FileFetcher,
+  Loader,
 } from "jsr:@deno/cache-dir@0.13.2";
 
 /** The output of the {@linkcode bundle} function. */
@@ -65,6 +69,8 @@ export interface ImportMap {
 export interface BundleOptions {
   /** Allow remote modules to be loaded or read from the cache. */
   allowRemote?: boolean;
+  /** Whether to use the cache. */
+  cache?: boolean;
   /** The cache root to use, overriding the default inferred `DENO_DIR`. */
   cacheRoot?: string;
   /** The setting to use when loading sources from the Deno cache. */
@@ -90,6 +96,8 @@ export interface BundleOptions {
 export interface TranspileOptions {
   /** Allow remote modules to be loaded or read from the cache. */
   allowRemote?: boolean;
+  /** Whether to use the cache. */
+  cache?: boolean;
   /** The cache root to use, overriding the default inferred `DENO_DIR`. */
   cacheRoot?: string;
   /** The setting to use when loading sources from the Deno cache. */
@@ -254,7 +262,8 @@ export async function transpile(
 
   let transpileLoad = load;
   if (!transpileLoad) {
-    const cache = createCache({ root: cacheRoot, cacheSetting, allowRemote });
+    const cache = createCache({ root: cacheRoot, cacheSetting, allowRemote, readOnly: !options.cache })
+
     transpileLoad = cache.load;
   }
   const { transpile: jsTranspile } = await instantiate();
